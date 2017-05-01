@@ -59,28 +59,29 @@ module Beanstream
         code = obj[:code]
         category = obj[:category]
         message = obj[:message]
+        details = obj[:details]
       rescue JSON::ParserError
         puts "Error parsing json error message"
       end
       
       if http_status_code == 302
-        raise InvalidRequestException.new(code, category, "Redirection for IOP and 3dSecure not supported by the Beanstream SDK yet. #{message}", http_status_code)
+        raise InvalidRequestException.new(code, category, "Redirection for IOP and 3dSecure not supported by the Beanstream SDK yet. #{message}", http_status_code, details)
       elsif http_status_code == 400
-        raise InvalidRequestException.new(code, category, message, http_status_code)
+        raise InvalidRequestException.new(code, category, message, http_status_code, details)
       elsif code == 401
-        raise UnauthorizedException.new(code, category, message, http_status_code)
+        raise UnauthorizedException.new(code, category, message, http_status_code, details)
       elsif code == 402
-        raise BusinessRuleException.new(code, category, message, http_status_code)
+        raise BusinessRuleException.new(code, category, message, http_status_code, details)
       elsif code == 403
-        raise ForbiddenException.new(code, category, message, http_status_code)
+        raise ForbiddenException.new(code, category, message, http_status_code, details)
       elsif code == 405
-        raise InvalidRequestException.new(code, category, message, http_status_code)
+        raise InvalidRequestException.new(code, category, message, http_status_code, details)
       elsif code == 415
-        raise InvalidRequestException.new(code, category, message, http_status_code)
+        raise InvalidRequestException.new(code, category, message, http_status_code, details)
       elsif code >= 500
-        raise InternalServerException.new(code, category, message, http_status_code)
+        raise InternalServerException.new(code, category, message, http_status_code, details)
       else
-        raise BeanstreamException.new(code, category, message, http_status_code)
+        raise BeanstreamException.new(code, category, message, http_status_code, details)
       end
     end
     
