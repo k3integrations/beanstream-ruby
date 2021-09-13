@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.require_paths = ['lib']
   
   s.add_dependency('rest-client', '~> 1.4')
-  s.add_dependency('json', '~> 1.8.1')
+  s.add_dependency('json', '~> 2.5.1')
 
   s.add_development_dependency('shoulda', '~> 3.4.0')
   s.add_development_dependency('test-unit')
