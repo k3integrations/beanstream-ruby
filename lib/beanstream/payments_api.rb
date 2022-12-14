@@ -129,9 +129,10 @@ module Beanstream
       val = transaction_post("POST", make_payment_url, Beanstream.merchant_id, Beanstream.payments_api_key, payment)
     end
     
-    def complete_preauth(transaciton_id, amount)
+    def complete_preauth(transaciton_id, amount, order_number = nil)
       complete_url = make_payment_url+transaciton_id+"/completions"
-      completion = { :amount => amount }
+      completion = { amount: amount }
+      completion[order_number] = order_number unless order_number.nil?
       val = transaction_post("POST", complete_url, Beanstream.merchant_id, Beanstream.payments_api_key, completion)
     end
 
@@ -149,13 +150,15 @@ module Beanstream
       transaction_post("GET", get_transaction_url(transaction_id), Beanstream.merchant_id, Beanstream.payments_api_key)
     end
 
-    def return_payment(transaction_id, amount)
+    def return_payment(transaction_id, amount, order_number = nil)
       data = { amount: amount }
+      data[order_number] = order_number unless order_number.nil?
       transaction_post("POST", payment_returns_url(transaction_id), Beanstream.merchant_id, Beanstream.payments_api_key, data)
     end
 
-    def void_payment(transaction_id, amount)
+    def void_payment(transaction_id, amount, order_number = nil)
       data = { amount: amount }
+      data[order_number] = order_number unless order_number.nil?
       transaction_post("POST", payment_void_url(transaction_id), Beanstream.merchant_id, Beanstream.payments_api_key, data)
     end
   
