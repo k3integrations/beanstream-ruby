@@ -127,9 +127,10 @@ module Beanstream
       
       decline = false
       begin
+        order_number = PaymentsAPI.generateRandomOrderId("test")
         result = Beanstream.PaymentsAPI.make_payment(
           {
-            :order_number => PaymentsAPI.generateRandomOrderId("test"),
+            :order_number => order_number,
             :amount => 100,
             :payment_method => PaymentMethods::CARD,
             :card => {
@@ -147,7 +148,7 @@ module Beanstream
         transaction_id = result['id']
         puts "TransactionId: #{transaction_id}"
         
-        result = Beanstream.PaymentsAPI.complete_preauth(transaction_id, 59.50)
+        result = Beanstream.PaymentsAPI.complete_preauth(transaction_id, 59.50, order_number)
         puts "completion result: #{result}"
         assert(PaymentsAPI.payment_approved(result))
       
@@ -179,9 +180,10 @@ module Beanstream
 
       # 2) make pre-auth
       begin
+        order_number = PaymentsAPI.generateRandomOrderId("test")
         result = Beanstream.PaymentsAPI.make_payment(
           {
-            :order_number => PaymentsAPI.generateRandomOrderId("test"),
+            :order_number => order_number,
             :amount => 13.99,
             :payment_method => PaymentMethods::TOKEN,
             :token => {
@@ -196,7 +198,7 @@ module Beanstream
         transaction_id = result['id']
 
         # 3) complete purchase
-        result = Beanstream.PaymentsAPI.complete_preauth(transaction_id, 10.33)
+        result = Beanstream.PaymentsAPI.complete_preauth(transaction_id, 10.33, order_number)
         puts "completion result: #{result}"
         assert(PaymentsAPI.payment_approved(result))
       rescue BeanstreamException => ex
@@ -207,10 +209,11 @@ module Beanstream
 
     #Return
     should "have successful credit card payment, then get the payment, then return the payment" do
-
+      
+      order_number = PaymentsAPI.generateRandomOrderId("test")
       result = Beanstream.PaymentsAPI.make_payment(
         {
-          :order_number => PaymentsAPI.generateRandomOrderId("test"),
+          :order_number => order_number,
           :amount => 100,
           :payment_method => PaymentMethods::CARD,
           :card => {
@@ -232,7 +235,7 @@ module Beanstream
       assert_equal "Approved",  get_result["message"]
 
       # => test return payment
-      return_result = Beanstream.PaymentsAPI.return_payment(transaction_id, 100)
+      return_result = Beanstream.PaymentsAPI.return_payment(transaction_id, 100, order_number)
       assert_equal "Approved",  return_result["message"]
       assert_equal "R",         return_result["type"]
       get_after_return = Beanstream.PaymentsAPI.get_transaction(transaction_id)
@@ -247,9 +250,10 @@ module Beanstream
     #Void
     should "have successful credit card payment, then void the payment" do
 	
+      order_number = PaymentsAPI.generateRandomOrderId("test")
       result = Beanstream.PaymentsAPI.make_payment(
         {
-          :order_number => PaymentsAPI.generateRandomOrderId("test"),
+          :order_number => order_number,
           :amount => 100,
           :payment_method => PaymentMethods::CARD,
           :card => {
@@ -274,7 +278,7 @@ module Beanstream
 
       # => try to return the payment after voiding
       assert_raises InvalidRequestException do
-        Beanstream.PaymentsAPI.return_payment(transaction_id, 100)
+        Beanstream.PaymentsAPI.return_payment(transaction_id, 100, order_number)
       end
     end
 
@@ -286,7 +290,7 @@ module Beanstream
 
     should "not return a random transaction id" do
       assert_raises InvalidRequestException do
-        Beanstream.PaymentsAPI.return_payment("500", 100)
+        Beanstream.PaymentsAPI.return_payment("500", 100, '100')
       end
     end
 
